@@ -10,6 +10,7 @@ const envSchema = z.object({
       (value) => value.startsWith("postgresql://") || value.startsWith("postgres://"),
       "DATABASE_URL must be a PostgreSQL connection string",
     ),
+  OPENAI_API_KEY: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -25,4 +26,5 @@ export const env = {
   port: parsed.data.PORT,
   nodeEnv: parsed.data.NODE_ENV,
   databaseUrl: parsed.data.DATABASE_URL,
+  openAiKey: parsed.data.OPENAI_API_KEY,
 };
