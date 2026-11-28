@@ -2,6 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { createConversationSecret } from "../ai/conversation.js";
 import { db } from "../db/index.js";
 import { conversationSessions, conversationTurns } from "../db/schema.js";
+import { streakService } from "./streak.service.js";
 import { HttpError } from "../utils/http-error.js";
 
 async function findSession(id: string) {
@@ -50,6 +51,7 @@ export const conversationService = {
       .update(conversationSessions)
       .set({ updatedAt: new Date() })
       .where(eq(conversationSessions.id, id));
+    if (role === "user") await streakService.mark("conversation");
     return turn;
   },
 };

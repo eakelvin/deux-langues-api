@@ -1,4 +1,4 @@
-import { jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, date, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import type { CorrectionReply } from "../ai/writing.js";
 
 export const exerciseFlow = pgEnum("exercise_flow", ["written", "mimic", "conversation"]);
@@ -12,6 +12,14 @@ export const exercises = pgTable("exercises", {
   reply: jsonb("reply").$type<CorrectionReply | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const dailyProgress = pgTable("daily_progress", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  date: date("date").notNull().unique(),
+  written: boolean("written").notNull().default(false),
+  mimic: boolean("mimic").notNull().default(false),
+  conversation: boolean("conversation").notNull().default(false),
 });
 
 export const conversationSessions = pgTable("conversation_sessions", {

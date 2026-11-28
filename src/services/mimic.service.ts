@@ -3,6 +3,7 @@ import { AiParseError } from "../ai/request.js";
 import { requestPassage } from "../ai/mimic.js";
 import { db } from "../db/index.js";
 import { exercises } from "../db/schema.js";
+import { streakService } from "./streak.service.js";
 import { transcriber } from "../transcription/index.js";
 import { HttpError } from "../utils/http-error.js";
 
@@ -45,6 +46,7 @@ export const mimicService = {
       .set({ response: transcription.text, updatedAt: new Date() })
       .where(eq(exercises.id, id))
       .returning();
+    await streakService.mark("mimic");
     return updated;
   },
 };

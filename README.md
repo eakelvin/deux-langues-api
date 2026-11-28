@@ -88,4 +88,12 @@ curl -X POST http://localhost:4000/conversations/<id>/turns \
 curl http://localhost:4000/conversations/<id>
 ```
 
+## Streak
+
+A day counts when written, mimic, and conversation are all done. Written counts when a correction is saved, mimic when a transcript is saved, and conversation when a user turn is saved. Repeating one does not raise the count. The day is the `TIME_ZONE` calendar date, `Europe/Paris` unless you set another IANA name.
+
+```bash
+curl http://localhost:4000/streak
+```
+
 Relative imports use a `.js` extension because `tsconfig.json` sets `module` and `moduleResolution` to `NodeNext`. That path is the compiled file. `tsx` still runs the `.ts` source.

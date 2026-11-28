@@ -3,6 +3,7 @@ import { AiParseError } from "../ai/request.js";
 import { requestCorrection, requestTopic } from "../ai/writing.js";
 import { db } from "../db/index.js";
 import { exercises } from "../db/schema.js";
+import { streakService } from "./streak.service.js";
 import { HttpError } from "../utils/http-error.js";
 
 async function findWritten(id: string) {
@@ -42,6 +43,7 @@ export const writingService = {
         .set({ reply, updatedAt: new Date() })
         .where(eq(exercises.id, id))
         .returning();
+      await streakService.mark("written");
       return updated;
     } catch (error) {
       if (error instanceof AiParseError) {

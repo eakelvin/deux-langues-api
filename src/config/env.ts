@@ -1,9 +1,19 @@
 import "dotenv/config";
 import { z } from "zod";
 
+function isIanaTimeZone(value: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-CA", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   NODE_ENV: z.string().default("development"),
+  TIME_ZONE: z.string().default("Europe/Paris").refine(isIanaTimeZone, "TIME_ZONE must be an IANA name"),
   DATABASE_URL: z
     .string()
     .refine(
@@ -27,4 +37,5 @@ export const env = {
   nodeEnv: parsed.data.NODE_ENV,
   databaseUrl: parsed.data.DATABASE_URL,
   openAiKey: parsed.data.OPENAI_API_KEY,
+  timeZone: parsed.data.TIME_ZONE,
 };
