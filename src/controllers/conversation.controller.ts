@@ -1,10 +1,11 @@
 import type { RequestHandler } from "express";
 import { z } from "zod";
 import { conversationService } from "../services/conversation.service.js";
+import { turnRoles } from "../types/conversation.js";
 import { HttpError } from "../utils/http-error.js";
 
 const turnSchema = z.object({
-  role: z.enum(["user", "assistant"]),
+  role: z.enum(turnRoles),
   content: z.string().trim().min(1).max(8000),
 });
 

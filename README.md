@@ -96,4 +96,32 @@ A day counts when written, mimic, and conversation are all done. Written counts 
 curl http://localhost:4000/streak
 ```
 
+## Notes
+
+Each mistake is its own row. A repeat is the same category and the same word or phrase, counted when the list is read. Filter with `flow` and `category`.
+
+```bash
+curl http://localhost:4000/notes
+curl "http://localhost:4000/notes?flow=written&category=gender"
+```
+
+## Review
+
+`GET /reviews` lists mistakes due today. Each one shows the wrong sentence, not the fix. `POST /reviews/<id>` stores what you typed and your own rating, `correct` or `incorrect`. A correct answer is due again in 1, then 3, then 7 days. An incorrect answer is due again tomorrow.
+
+```bash
+curl http://localhost:4000/reviews
+curl -X POST http://localhost:4000/reviews/<id> \
+  -H 'content-type: application/json' \
+  -d '{"result":"correct","answer":"un endroit"}'
+```
+
+## Progress
+
+`GET /progress` reads the last 7 days in `TIME_ZONE`. Days practiced come from the streak rows. Mistakes per 100 words uses learner responses as the word count. A repeat is a mistake whose category and phrase already appeared. An item is reviewed once it has an attempt, and learned after 3 correct attempts in a row. `days` is the same numbers, one entry per day.
+
+```bash
+curl http://localhost:4000/progress
+```
+
 Relative imports use a `.js` extension because `tsconfig.json` sets `module` and `moduleResolution` to `NodeNext`. That path is the compiled file. `tsx` still runs the `.ts` source.

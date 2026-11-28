@@ -1,7 +1,11 @@
-import { boolean, date, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import type { CorrectionReply } from "../ai/writing.js";
+import { sql } from "drizzle-orm";
+import { boolean, date, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import type { CorrectionReply } from "../types/writing.js";
+import { errorCategories } from "../constants/categories.js";
 
 export const exerciseFlow = pgEnum("exercise_flow", ["written", "mimic", "conversation"]);
+export const errorCategory = pgEnum("error_category", errorCategories);
+export const reviewResult = pgEnum("review_result", ["correct", "incorrect"]);
 export const turnRole = pgEnum("turn_role", ["user", "assistant"]);
 
 export const exercises = pgTable("exercises", {
@@ -20,6 +24,30 @@ export const dailyProgress = pgTable("daily_progress", {
   written: boolean("written").notNull().default(false),
   mimic: boolean("mimic").notNull().default(false),
   conversation: boolean("conversation").notNull().default(false),
+});
+
+export const mistakes = pgTable("mistakes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  flow: exerciseFlow("flow").notNull(),
+  category: errorCategory("category").notNull(),
+  phrase: text("phrase").notNull(),
+  original: text("original").notNull(),
+  corrected: text("corrected").notNull(),
+  explanation: text("explanation").notNull(),
+  sourceId: uuid("source_id").notNull(),
+  wordCount: integer("word_count").notNull(),
+  dueOn: date("due_on").notNull().default(sql`current_date`),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const reviewAttempts = pgTable("review_attempts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  mistakeId: uuid("mistake_id")
+    .notNull()
+    .references(() => mistakes.id),
+  result: reviewResult("result").notNull(),
+  answer: text("answer").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const conversationSessions = pgTable("conversation_sessions", {

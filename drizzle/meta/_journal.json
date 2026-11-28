@@ -15,6 +15,20 @@
       "when": 1795826559488,
       "tag": "0001_lying_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795829058970,
+      "tag": "0002_unique_warbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795829647109,
+      "tag": "0003_messy_sage",
+      "breakpoints": true
     }
   ]
 }

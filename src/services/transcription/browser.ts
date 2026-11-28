@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { HttpError } from "../utils/http-error.js";
-import type { Transcriber } from "./types.js";
+import { HttpError } from "../../utils/http-error.js";
+import type { Transcriber } from "../../types/transcription.js";
 
 const transcriptSchema = z.string().trim().min(1).max(8000);
 

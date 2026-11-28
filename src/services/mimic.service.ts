@@ -1,10 +1,12 @@
 import { eq } from "drizzle-orm";
+import { requestMimicMistakes } from "../ai/mistakes.js";
 import { AiParseError } from "../ai/request.js";
 import { requestPassage } from "../ai/mimic.js";
 import { db } from "../db/index.js";
 import { exercises } from "../db/schema.js";
+import { notesService } from "./notes.service.js";
 import { streakService } from "./streak.service.js";
-import { transcriber } from "../transcription/index.js";
+import { transcriber } from "./transcription/index.js";
 import { HttpError } from "../utils/http-error.js";
 
 export const mimicService = {
@@ -47,6 +49,17 @@ export const mimicService = {
       .where(eq(exercises.id, id))
       .returning();
     await streakService.mark("mimic");
+    try {
+      const compared = await requestMimicMistakes(updated.prompt, transcription.text);
+      await notesService.record({
+        flow: "mimic",
+        sourceId: id,
+        responseText: transcription.text,
+        mistakes: compared.mistakes,
+      });
+    } catch (error) {
+      if (!(error instanceof AiParseError)) throw error;
+    }
     return updated;
   },
 };

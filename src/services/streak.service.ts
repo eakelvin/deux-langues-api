@@ -1,9 +1,8 @@
 import { env } from "../config/env.js";
 import { db } from "../db/index.js";
 import { dailyProgress } from "../db/schema.js";
+import type { Flow } from "../types/flow.js";
 import { currentStreak, localDate } from "../utils/streak.js";
-
-export type Flow = "written" | "mimic" | "conversation";
 
 function flagUpdate(flow: Flow) {
   if (flow === "written") return { written: true };

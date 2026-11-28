@@ -1,7 +1,11 @@
 import { asc, eq } from "drizzle-orm";
 import { createConversationSecret } from "../ai/conversation.js";
+import { requestConversationMistakes } from "../ai/mistakes.js";
+import { AiParseError } from "../ai/request.js";
 import { db } from "../db/index.js";
 import { conversationSessions, conversationTurns } from "../db/schema.js";
+import type { TurnRole } from "../types/conversation.js";
+import { notesService } from "./notes.service.js";
 import { streakService } from "./streak.service.js";
 import { HttpError } from "../utils/http-error.js";
 
@@ -41,7 +45,7 @@ export const conversationService = {
     return { ...session, turns };
   },
 
-  async addTurn(id: string, role: "user" | "assistant", content: string) {
+  async addTurn(id: string, role: TurnRole, content: string) {
     await findSession(id);
     const [turn] = await db
       .insert(conversationTurns)
@@ -51,7 +55,20 @@ export const conversationService = {
       .update(conversationSessions)
       .set({ updatedAt: new Date() })
       .where(eq(conversationSessions.id, id));
-    if (role === "user") await streakService.mark("conversation");
+    if (role === "user") {
+      await streakService.mark("conversation");
+      try {
+        const checked = await requestConversationMistakes(content);
+        await notesService.record({
+          flow: "conversation",
+          sourceId: turn.id,
+          responseText: content,
+          mistakes: checked.mistakes,
+        });
+      } catch (error) {
+        if (!(error instanceof AiParseError)) throw error;
+      }
+    }
     return turn;
   },
 };
